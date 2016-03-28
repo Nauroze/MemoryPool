@@ -13,7 +13,7 @@ struct heapList {
 };
 
 //A Custom memory manager, that improves performance by working on an assigned size of memory and thereby also reducing memory leaks.
-Class MemoryPool
+class MemoryPool
 {
         void expandPool();
         void cleanUp();
