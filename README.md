@@ -1,0 +1,1 @@
+A custom memory manager that provides a better allocation and deallocation routine by providing an assigned chunk of memory, thereby improving performance and reducing leaks. Development was done in C++ on QtCreator
