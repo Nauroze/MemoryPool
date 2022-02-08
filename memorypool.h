@@ -6,15 +6,16 @@
 
 using namespace std;
 
-
 //Linked List to store next memory location
 struct heapList {
     heapList* next;
 };
 
-//A Custom memory manager, that improves performance by working on an assigned size of memory and thereby also reducing memory leaks.
+// A Custom memory manager, that improves performance by working on preallocated chunks of memory
+// rather an incremental allocations to the heap. Memory pool size will keep increasing as it becomes required.
 class MemoryPool
 {
+    private:
         void expandPool();
         void cleanUp();
         heapList* headNode;
@@ -32,21 +33,24 @@ class MemoryPool
 
 MemoryPool myMemory;
 
-class Employee {
-public:
-// I know it is better to have the access identifier of these variables as private, lets work with this for now.
-    string Name;
-    string Position;
-
+// This Thing has operators new and delete overridden in order to use our custom MemoryPool
+class Thing {
+    private:
+    std::string ThingName;
+    int    ThingValue;
+    
+    public:
+    Thing()
+        : ThingName("Happy Thing"), ThingValue(0) {};
     void* operator new(size_t);
     void operator delete(void*);
 };
 
-void* Employee::operator new(size_t size){
+void* Thing::operator new(size_t size){
     return myMemory.allocate(size);
 }
 
-void Employee::operator delete(void* pointerToDelete){
+void Thing::operator delete(void* pointerToDelete){
     myMemory.free(pointerToDelete);
 }
 
@@ -67,7 +71,7 @@ void MemoryPool::free(void *deleted) {
 }
 
 void MemoryPool::expandPool() {
-    size_t  size = (sizeof(Employee) > sizeof(heapList*)) ? sizeof(Employee) : sizeof(heapList*);
+    size_t  size = (sizeof(Thing) > sizeof(heapList*)) ? sizeof(Thing) : sizeof(heapList*);
 
     heapList* head = reinterpret_cast<heapList*> (new char[size]);
     headNode = head;
