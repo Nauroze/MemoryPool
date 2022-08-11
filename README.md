@@ -1,1 +1,2 @@
-A custom memory manager that provides a better allocation and deallocation routine by providing an assigned chunk of memory, thereby improving performance and reducing leaks. Development was done in C++ on QtCreator
+A Custom memory manager, that improves performance by working on preallocated chunks of memory
+rather an incremental allocations to the heap. Memory pool size will keep increasing as it becomes required.
