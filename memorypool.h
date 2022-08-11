@@ -16,47 +16,23 @@ struct heapList {
 class MemoryPool
 {
     private:
-        void expandPool();
+        void expandPool(size_t size = 0);
         void cleanUp();
         heapList* headNode;
     public:
         MemoryPool(){
             headNode = nullptr;
-            expandPool();
         }
-        virtual ~MemoryPool(){
+        ~MemoryPool(){
             cleanUp();
         }
         void* allocate(size_t);
         void free(void*);
 };
 
-MemoryPool myMemory;
-
-// This Thing has operators new and delete overridden in order to use our custom MemoryPool
-class Thing {
-    private:
-    std::string ThingName;
-    int    ThingValue;
-    
-    public:
-    Thing()
-        : ThingName("Happy Thing"), ThingValue(0) {};
-    void* operator new(size_t);
-    void operator delete(void*);
-};
-
-void* Thing::operator new(size_t size){
-    return myMemory.allocate(size);
-}
-
-void Thing::operator delete(void* pointerToDelete){
-    myMemory.free(pointerToDelete);
-}
-
 void* MemoryPool::allocate(size_t size) {
     if(headNode == nullptr)
-        expandPool();
+        expandPool(size);
 
     heapList* head = headNode;
     headNode = head->next;
@@ -70,14 +46,15 @@ void MemoryPool::free(void *deleted) {
     headNode = head;
 }
 
-void MemoryPool::expandPool() {
-    size_t  size = (sizeof(Thing) > sizeof(heapList*)) ? sizeof(Thing) : sizeof(heapList*);
+void MemoryPool::expandPool(size_t size) {
+    size_t sizeofHeapList = sizeof(heapList*);
+    size_t new_size = (size > sizeofHeapList) ? size : sizeofHeapList;
 
-    heapList* head = reinterpret_cast<heapList*> (new char[size]);
+    heapList* head = reinterpret_cast<heapList*> (new char[new_size]);
     headNode = head;
 
     for(int i = 0; i < POOLSIZE; i++){
-        head->next = reinterpret_cast<heapList*>(new char[size]);
+        head->next = reinterpret_cast<heapList*>(new char[new_size]);
         head = head->next;
     }
 
@@ -91,8 +68,5 @@ void MemoryPool::cleanUp() {
         delete[] nextPtr;
     }
 }
-
-
-
 
 #endif // MEMORYPOOL_H
