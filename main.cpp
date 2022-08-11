@@ -1,22 +1,40 @@
-#include <iostream>
 #include "memorypool.h"
+#include <iostream>
 #include <chrono>
 
 using namespace std;
 
+static MemoryPool s_Memory;
+
+struct Thing
+{
+    int value;
+    std::string str;
+
+    Thing() : value(0), str("Happy Thing") {}
+    
+    void Print() {
+        std::cout << str << " has a value of " << value << std::endl;
+    }
+    
+    void* operator new(size_t size){
+        return s_Memory.allocate(size);
+    }
+
+    void operator delete(void* pointerToDelete){
+        s_Memory.free(pointerToDelete);
+    }
+};
+
 int main() {
     chrono::steady_clock::time_point start =chrono::steady_clock::now();
 
-    Thing* t[1000];
-
+    Thing* t;
     for (int i=0 ; i<1000; i++) // Lets have 1000x1000 allocations and deallocations to see some substantial difference in runtime.
     {
         for (int j = 0; j  <  1000; j++) {
-               t[j] = new Thing();
-             }
-        for (int j = 0; j  <  1000; j++) {
-             delete t[j];
-             t[j] = NULL;       // Sets the now dangling pointer to NULL.
+               t = new Thing();
+               delete t;
              }
     }
 
