@@ -1,10 +1,8 @@
-#include "memorypool.h"
 #include <iostream>
+#include "memorypool.h"
 #include <chrono>
 
 using namespace std;
-
-static MemoryPool s_Memory;
 
 struct Thing
 {
@@ -24,7 +22,12 @@ struct Thing
     void operator delete(void* pointerToDelete){
         s_Memory.free(pointerToDelete);
     }
+
+    private:
+    static MemoryPool s_Memory;
 };
+
+MemoryPool Thing::s_Memory;
 
 int main() {
     chrono::steady_clock::time_point start =chrono::steady_clock::now();
